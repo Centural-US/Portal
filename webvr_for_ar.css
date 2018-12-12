@@ -1,0 +1,6 @@
+/* Not sure why the margin and overflow is required here, will look into to ensure this style is necessary and for what reason.*/
+body {
+    margin : 0px;
+    overflow: hidden;
+    font-family: Monospace; /* Not required, might change in the future or remove*/
+}
