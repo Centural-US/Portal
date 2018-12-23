@@ -4,6 +4,7 @@
       <mapping ext="gltf" type="PLAIN_TEXT" />
       <mapping ext="hiro" type="PLAIN_TEXT" />
       <mapping ext="lettera" type="PLAIN_TEXT" />
+      <mapping ext="kanji" type="PLAIN_TEXT" />
       <mapping ext="patt" type="PLAIN_TEXT" />
     </extensionMap>
   </component>
