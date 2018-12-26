@@ -12628,7 +12628,7 @@
 
         this.colorWrite = true;
 
-        this.precision = null; // override the renderer's default precision for this material
+        this.precision = null; // override the webgl_renderer's default precision for this material
 
         this.polygonOffset = false;
         this.polygonOffsetFactor = 0;
@@ -15738,7 +15738,7 @@
      *
      * Uniforms of a program.
      * Those form a tree structure with a special top-level container for the root,
-     * which you get by calling 'new WebGLUniforms( gl, program, renderer )'.
+     * which you get by calling 'new WebGLUniforms( gl, program, webgl_renderer )'.
      *
      *
      * Properties of inner nodes including the top-level container:
@@ -15749,15 +15749,15 @@
      *
      * Methods of all nodes except the top-level container:
      *
-     * .setValue( gl, value, [renderer] )
+     * .setValue( gl, value, [webgl_renderer] )
      *
      * 		uploads a uniform value(s)
-     *  	the 'renderer' parameter is needed for sampler uniforms
+     *  	the 'webgl_renderer' parameter is needed for sampler uniforms
      *
      *
-     * Static methods of the top-level container (renderer factorizations):
+     * Static methods of the top-level container (webgl_renderer factorizations):
      *
-     * .upload( gl, seq, values, renderer )
+     * .upload( gl, seq, values, webgl_renderer )
      *
      * 		sets uniforms in 'seq' to 'values[id].value'
      *
@@ -15766,7 +15766,7 @@
      * 		filters 'seq' entries with corresponding entry in values
      *
      *
-     * Methods of the top-level container (renderer factorizations):
+     * Methods of the top-level container (webgl_renderer factorizations):
      *
      * .setValue( gl, name, value )
      *
@@ -17677,7 +17677,7 @@
 
         };
 
-        // Exposed for resource monitoring & error feedback via renderer.info:
+        // Exposed for resource monitoring & error feedback via webgl_renderer.info:
         this.programs = programs;
 
     }
@@ -23595,7 +23595,7 @@
 
             if ( material.lights ) {
 
-                // wire up the material to this renderer's lighting state
+                // wire up the material to this webgl_renderer's lighting state
 
                 uniforms.ambientLightColor.value = lights.state.ambient;
                 uniforms.directionalLights.value = lights.state.directional;
@@ -23834,7 +23834,7 @@
                     // the current material requires lighting info
 
                     // note: all lighting uniforms are always set correctly
-                    // they simply reference the renderer's state for their
+                    // they simply reference the webgl_renderer's state for their
                     // values
                     //
                     // use the current material's .needsUpdate flags to set
@@ -24794,7 +24794,7 @@
         this.fog = null;
         this.overrideMaterial = null;
 
-        this.autoUpdate = true; // checked by the renderer
+        this.autoUpdate = true; // checked by the webgl_renderer
 
     }
 
@@ -45271,7 +45271,7 @@
 
         this.scale.set( 0.5 * this.size, 0.5 * this.size, scale );
 
-        this.children[ 0 ].material.side = ( scale < 0 ) ? BackSide : FrontSide; // renderer flips side when determinant < 0; flipping not wanted here
+        this.children[ 0 ].material.side = ( scale < 0 ) ? BackSide : FrontSide; // webgl_renderer flips side when determinant < 0; flipping not wanted here
 
         this.lookAt( this.plane.normal );
 

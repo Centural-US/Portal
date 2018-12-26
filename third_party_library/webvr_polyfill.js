@@ -1596,7 +1596,7 @@
         };
 
         /**
-         * Tears down all the resources created by the UI renderer.
+         * Tears down all the resources created by the UI webgl_renderer.
          */
         CardboardUI.prototype.destroy = function() {
             var gl = this.gl;
