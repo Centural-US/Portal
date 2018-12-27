@@ -5,7 +5,7 @@
 
 //
 var webgl_renderer_parameters = {
-    antialias	: true,
+    antialias: true,
     alpha: true
 };
 
@@ -181,7 +181,32 @@ onRenderFcts.push(function(){
     var markerControls = new THREEx.ArMarkerControls(arToolkitContext, markerRoot2, {
         type : 'pattern',
          patternUrl : 'data/patterns/patt.kanji',
-    })
+    });
+
+    // get videoTexture
+    if (arToolkitSource.domElement.nodeName === 'VIDEO') {
+        var videoTexture = new THREE.VideoTexture(arToolkitSource.domElement)
+        // arToolkitSource.domElement.pause()
+    } else if (arToolkitSource.domElement.nodeName === 'IMG') {
+        var videoTexture = new THREE.Texture(arToolkitSource.domElement);
+        videoTexture.needsUpdate = true
+    } else console.assert(false);
+// TODO to remove if webgl2 - better visual ?
+    videoTexture.minFilter = THREE.NearestFilter;
+
+    //////////////////////////////////////////////////////////////////////////////
+//	plane always in front of the camera, exactly as big as the viewport
+//////////////////////////////////////////////////////////////////////////////
+    var videoInWebgl = new THREEx.ArVideoInWebgl(videoTexture);
+    scene.add(videoInWebgl.object3d);
+    arToolkitSource.domElement.style.visibility = 'hidden';
+
+// TODO extract the fov from the projectionMatrix
+// camera.fov = 43.1
+// camera.fov = 42
+    onRenderFcts.push(function () {
+        videoInWebgl.update(camera)
+    });
 
     // add a gizmo in the center of the marker
     var geometry	= new THREE.OctahedronGeometry( 0.1, 0 )
@@ -190,10 +215,7 @@ onRenderFcts.push(function(){
     });
     var mesh	= new THREE.Mesh( geometry, material );
     markerRoot2.add( mesh );
-})()
-
-
-;(function(){
+})()(function(){
     var markerRoot1 = scene.getObjectByName('marker1')
     var markerRoot2 = scene.getObjectByName('marker2')
 
