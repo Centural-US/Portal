@@ -2,16 +2,17 @@
 //		Init
 //////////////////////////////////////////////////////////////////////////////////
 
-// init webgl_renderer
+
+//
 var webgl_renderer_parameters = {
-    antialias: false,
+    antialias: true,
     alpha: true
 };
 
-var webgl_renderer = new THREE.WebGLRenderer(webgl_renderer_parameters);
+// init webgl_renderer
+var webgl_renderer	= new THREE.WebGLRenderer( webgl_renderer_parameters );
 
 webgl_renderer.setClearColor(new THREE.Color('lightgrey'), 0);
-// webgl_renderer.setPixelRatio( 2 );
 webgl_renderer.setSize(window.innerWidth, window.innerHeight);
 webgl_renderer.domElement.style.position = 'absolute';
 webgl_renderer.domElement.style.top = '0px';
@@ -19,7 +20,7 @@ webgl_renderer.domElement.style.left = '0px';
 document.body.appendChild(webgl_renderer.domElement);
 
 // array of functions for the rendering loop
-var onRenderFcts = [];
+var onRenderFcts= [];
 
 // init scene and camera
 var scene = new THREE.Scene();
@@ -87,6 +88,14 @@ document.body.addEventListener('click', function (event) {
 // Resize the WebGL canvas when we resize and also when we change modes.
 window.addEventListener('resize', onResize);
 
+
+////////////////////////////////////////////////////////////////////////////////
+//          handle arToolkitSource
+////////////////////////////////////////////////////////////////////////////////
+
+
+
+
 function onResize() {
     // handle arToolkitSource resize
     arToolkitSource.onResize(webgl_renderer.domElement)
@@ -106,29 +115,15 @@ function onResize() {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-//          handle arToolkitSource
+//          initialize arToolkitContext
 ////////////////////////////////////////////////////////////////////////////////
-
 var arToolkitSource = new THREEx.ArToolkitSource({
-    // to read from the webcam
-    sourceType: 'webcam',
-
-    // // to read from an image
-    // sourceType : 'image',
-    // sourceUrl : THREEx.ArToolkitContext.baseURL + '../data/images/img.jpg',
-
-    // // to read from a video
-    // sourceType : 'video',
-    // sourceUrl : THREEx.ArToolkitContext.baseURL + '../data/videos/headtracking.mp4',
+    sourceType: 'webcam'
 });
 
 arToolkitSource.init(function onReady() {
-    onResize()
+    onResize();
 });
-
-////////////////////////////////////////////////////////////////////////////////
-//          initialize arToolkitContext
-////////////////////////////////////////////////////////////////////////////////
 
 // create atToolkitContext
 var arToolkitContext = new THREEx.ArToolkitContext({
@@ -136,10 +131,10 @@ var arToolkitContext = new THREEx.ArToolkitContext({
     detectionMode: 'mono',
     maxDetectionRate: 30,
     canvasWidth: 80 * 3,
-    canvasHeight: 60 * 3,
+    canvasHeight: 60 * 3
 });
 // initialize it
-arToolkitContext.init(function onCompleted() {
+arToolkitContext.init(function onCompleted(){
     if (camera instanceof THREE.PerspectiveCamera === false) {
         // copy projection matrix to camera
         camera.projectionMatrix.copy(arToolkitContext.getProjectionMatrix());
@@ -147,29 +142,84 @@ arToolkitContext.init(function onCompleted() {
 });
 
 // update artoolkit on every frame
-onRenderFcts.push(function () {
-    if (arToolkitSource.ready === false) return;
+onRenderFcts.push(function(){
+    if( arToolkitSource.ready === false )	return;
 
-    arToolkitContext.update(arToolkitSource.domElement)
+    arToolkitContext.update( arToolkitSource.domElement )
+});
+
+//////////////////////////////////////////////////////////////////////////////
+//		markerRoot1
+//////////////////////////////////////////////////////////////////////////////
+
+// build markerControls
+var markerRoot1 = new THREE.Group
+markerRoot1.name = 'marker1'
+scene.add(markerRoot1)
+var markerControls = new THREEx.ArMarkerControls(arToolkitContext, markerRoot1, {
+    type : 'pattern',
+    patternUrl : 'data/patterns/patt.hiro'
+});
+
+// add a gizmo in the center of the marker
+var geometry	= new THREE.OctahedronGeometry( 0.1, 0 )
+var material	= new THREE.MeshNormalMaterial({
+    wireframe: true
+});
+var mesh	= new THREE.Mesh( geometry, material );
+markerRoot1.add( mesh );
+
+//////////////////////////////////////////////////////////////////////////////
+//		markerRoot2
+//////////////////////////////////////////////////////////////////////////////
+
+// build markerControls
+var markerRoot2 = new THREE.Group
+markerRoot2.name = 'marker2'
+scene.add(markerRoot2)
+var markerControls = new THREEx.ArMarkerControls(arToolkitContext, markerRoot2, {
+    type : 'pattern',
+     patternUrl : 'data/patterns/patt.kanji',
 });
 
 
-////////////////////////////////////////////////////////////////////////////////
-//          Create a ArMarkerControls
-////////////////////////////////////////////////////////////////////////////////
-var markers = [];
-var markerRoot = new THREE.Group;
-scene.add(markerRoot);
-var artoolkitMarker = new THREEx.ArMarkerControls(arToolkitContext, markerRoot, {
-    type: 'pattern',
-    patternUrl: 'data/patterns/patt.hiro',
+// add a gizmo in the center of the marker
+var geometry	= new THREE.OctahedronGeometry( 0.1, 0 )
+var material	= new THREE.MeshNormalMaterial({
+    wireframe: true
 });
+var mesh	= new THREE.Mesh( geometry, material );
+markerRoot2.add( mesh );
 
+var markerRoot1 = scene.getObjectByName('marker1')
+var markerRoot2 = scene.getObjectByName('marker2')
 
-//////////////////////////////////////////////////////////////////////////////////
-//		build videoTexture
-//////////////////////////////////////////////////////////////////////////////////
+var container = new THREE.Group
+scene.add(container)
 
+// update container.visible and scanningSpinner visibility
+onRenderFcts.push(function(){
+    if( markerRoot1.visible === true && markerRoot2.visible === true ){
+        container.visible = true
+        document.querySelector('.scanningSpinner').style.display = 'none'
+    }else{
+        container.visible = false
+        document.querySelector('.scanningSpinner').style.display = ''
+    }
+})
+
+//////////////////////////////////////////////////////////////////////////////
+//		build lineMesh
+//////////////////////////////////////////////////////////////////////////////
+var material = new THREE.LineDashedMaterial( {
+    dashSize: 1,
+    gapSize: 1,
+} );
+var geometry = new THREE.Geometry();
+geometry.vertices.push(new THREE.Vector3(1, 0, -3));
+geometry.vertices.push(new THREE.Vector3(-1, 0, -3));
+var lineMesh = new THREE.Line(geometry, material);
+container.add(lineMesh)
 // get videoTexture
 if (arToolkitSource.domElement.nodeName === 'VIDEO') {
     var videoTexture = new THREE.VideoTexture(arToolkitSource.domElement)
@@ -195,32 +245,57 @@ arToolkitSource.domElement.style.visibility = 'hidden';
 onRenderFcts.push(function () {
     videoInWebgl.update(camera)
 });
+// update lineMesh
+onRenderFcts.push(function(){
+    var geometry = lineMesh.geometry
+    geometry.vertices[0].copy(markerRoot1.position)
+    geometry.vertices[1].copy(markerRoot2.position)
+    geometry.verticesNeedUpdate = true
 
-//////////////////////////////////////////////////////////////////////////////////
-//		add an object in the scene
-//////////////////////////////////////////////////////////////////////////////////
+    geometry.computeBoundingSphere();
+    geometry.computeLineDistances();
 
-// add a torus knot
-var geometry = new THREE.CubeGeometry(1, 1, 1);
-var material = new THREE.MeshNormalMaterial({
-    transparent: true,
-    opacity: 0.5,
-    side: THREE.DoubleSide
+    var length = markerRoot1.position.distanceTo(markerRoot2.position)
+    lineMesh.material.scale = length * 10
+    lineMesh.material.needsUpdate = true
 });
-var mesh = new THREE.Mesh(geometry, material);
-mesh.position.y = geometry.parameters.height / 2
-markerRoot.add(mesh);
 
-var geometry = new THREE.TorusKnotGeometry(0.3, 0.1, 64, 16);
-var material = new THREE.MeshNormalMaterial();
-var mesh = new THREE.Mesh(geometry, material);
 
-mesh.position.x = 1;
+//////////////////////////////////////////////////////////////////////////////
+//		display the distance between the 2 markers
+//////////////////////////////////////////////////////////////////////////////
 
-markerRoot.add(mesh);
+// build texture
+var canvas = document.createElement( 'canvas' );
+canvas.width = 128;
+canvas.height = 64;
+var context = canvas.getContext( '2d' );
+var texture = new THREE.CanvasTexture( canvas );
 
-onRenderFcts.push(function () {
-    mesh.rotation.x += 0.1
+// build sprite
+var material = new THREE.SpriteMaterial({
+    map: texture,
+    color: 0xffffff,
+});
+var sprite = new THREE.Sprite( material );
+sprite.scale.multiplyScalar(0.5)
+container.add(sprite)
+
+// upload measure
+onRenderFcts.push(function(){
+    // update sprite position
+    sprite.position.addVectors(markerRoot1.position, markerRoot2.position).multiplyScalar(1/2)
+
+    // get the text to display
+    var length = markerRoot1.position.distanceTo(markerRoot2.position)
+    var text = length.toFixed(2)
+
+    // put the text in the sprite
+    context.font = '40px monospace';
+    context.clearRect( 0, 0, canvas.width, canvas.height );
+    context.fillStyle = '#fff';
+    context.fillText(text, canvas.width/4, 3*canvas.height/4 )
+    sprite.material.map.needsUpdate = true
 });
 
 //////////////////////////////////////////////////////////////////////////////////
