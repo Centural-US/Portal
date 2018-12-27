@@ -143,163 +143,162 @@ arToolkitContext.init(function onCompleted(){
 
 // update artoolkit on every frame
 onRenderFcts.push(function(){
-    if( arToolkitSource.ready === false )	return
+    if( arToolkitSource.ready === false )	return;
 
     arToolkitContext.update( arToolkitSource.domElement )
-})(function(){
+});
 
-    //////////////////////////////////////////////////////////////////////////////
-    //		markerRoot1
-    //////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+//		markerRoot1
+//////////////////////////////////////////////////////////////////////////////
 
-    // build markerControls
-    var markerRoot1 = new THREE.Group
-    markerRoot1.name = 'marker1'
-    scene.add(markerRoot1)
-    var markerControls = new THREEx.ArMarkerControls(arToolkitContext, markerRoot1, {
-        type : 'pattern',
-        patternUrl : 'data/patterns/patt.hiro',
-        // patternUrl : THREEx.ArToolkitContext.baseURL + 'data/patterns/patt.kanji',
-    })
+// build markerControls
+var markerRoot1 = new THREE.Group
+markerRoot1.name = 'marker1'
+scene.add(markerRoot1)
+var markerControls = new THREEx.ArMarkerControls(arToolkitContext, markerRoot1, {
+    type : 'pattern',
+    patternUrl : 'data/patterns/patt.hiro',
+    // patternUrl : THREEx.ArToolkitContext.baseURL + 'data/patterns/patt.kanji',
+})
 
-    // add a gizmo in the center of the marker
-    var geometry	= new THREE.OctahedronGeometry( 0.1, 0 )
-    var material	= new THREE.MeshNormalMaterial({
-        wireframe: true
-    });
-    var mesh	= new THREE.Mesh( geometry, material );
-    markerRoot1.add( mesh );
+// add a gizmo in the center of the marker
+var geometry	= new THREE.OctahedronGeometry( 0.1, 0 )
+var material	= new THREE.MeshNormalMaterial({
+    wireframe: true
+});
+var mesh	= new THREE.Mesh( geometry, material );
+markerRoot1.add( mesh );
 
-    //////////////////////////////////////////////////////////////////////////////
-    //		markerRoot2
-    //////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+//		markerRoot2
+//////////////////////////////////////////////////////////////////////////////
 
-    // build markerControls
-    var markerRoot2 = new THREE.Group
-    markerRoot2.name = 'marker2'
-    scene.add(markerRoot2)
-    var markerControls = new THREEx.ArMarkerControls(arToolkitContext, markerRoot2, {
-        type : 'pattern',
-         patternUrl : 'data/patterns/patt.kanji',
-    });
+// build markerControls
+var markerRoot2 = new THREE.Group
+markerRoot2.name = 'marker2'
+scene.add(markerRoot2)
+var markerControls = new THREEx.ArMarkerControls(arToolkitContext, markerRoot2, {
+    type : 'pattern',
+     patternUrl : 'data/patterns/patt.kanji',
+});
 
-    // get videoTexture
-    if (arToolkitSource.domElement.nodeName === 'VIDEO') {
-        var videoTexture = new THREE.VideoTexture(arToolkitSource.domElement)
-        // arToolkitSource.domElement.pause()
-    } else if (arToolkitSource.domElement.nodeName === 'IMG') {
-        var videoTexture = new THREE.Texture(arToolkitSource.domElement);
-        videoTexture.needsUpdate = true
-    } else console.assert(false);
+// get videoTexture
+if (arToolkitSource.domElement.nodeName === 'VIDEO') {
+    var videoTexture = new THREE.VideoTexture(arToolkitSource.domElement)
+    // arToolkitSource.domElement.pause()
+} else if (arToolkitSource.domElement.nodeName === 'IMG') {
+    var videoTexture = new THREE.Texture(arToolkitSource.domElement);
+    videoTexture.needsUpdate = true
+} else console.assert(false);
 // TODO to remove if webgl2 - better visual ?
-    videoTexture.minFilter = THREE.NearestFilter;
+videoTexture.minFilter = THREE.NearestFilter;
 
-    //////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
 //	plane always in front of the camera, exactly as big as the viewport
 //////////////////////////////////////////////////////////////////////////////
-    var videoInWebgl = new THREEx.ArVideoInWebgl(videoTexture);
-    scene.add(videoInWebgl.object3d);
-    arToolkitSource.domElement.style.visibility = 'hidden';
+var videoInWebgl = new THREEx.ArVideoInWebgl(videoTexture);
+scene.add(videoInWebgl.object3d);
+arToolkitSource.domElement.style.visibility = 'hidden';
 
 // TODO extract the fov from the projectionMatrix
 // camera.fov = 43.1
 // camera.fov = 42
-    onRenderFcts.push(function () {
-        videoInWebgl.update(camera)
-    });
+onRenderFcts.push(function () {
+    videoInWebgl.update(camera)
+});
 
-    // add a gizmo in the center of the marker
-    var geometry	= new THREE.OctahedronGeometry( 0.1, 0 )
-    var material	= new THREE.MeshNormalMaterial({
-        wireframe: true
-    });
-    var mesh	= new THREE.Mesh( geometry, material );
-    markerRoot2.add( mesh );
-})()(function(){
-    var markerRoot1 = scene.getObjectByName('marker1')
-    var markerRoot2 = scene.getObjectByName('marker2')
+// add a gizmo in the center of the marker
+var geometry	= new THREE.OctahedronGeometry( 0.1, 0 )
+var material	= new THREE.MeshNormalMaterial({
+    wireframe: true
+});
+var mesh	= new THREE.Mesh( geometry, material );
+markerRoot2.add( mesh );
 
-    var container = new THREE.Group
-    scene.add(container)
+var markerRoot1 = scene.getObjectByName('marker1')
+var markerRoot2 = scene.getObjectByName('marker2')
 
-    // update container.visible and scanningSpinner visibility
-    onRenderFcts.push(function(){
-        if( markerRoot1.visible === true && markerRoot2.visible === true ){
-            container.visible = true
-            document.querySelector('.scanningSpinner').style.display = 'none'
-        }else{
-            container.visible = false
-            document.querySelector('.scanningSpinner').style.display = ''
-        }
-    })
+var container = new THREE.Group
+scene.add(container)
 
-    //////////////////////////////////////////////////////////////////////////////
-    //		build lineMesh
-    //////////////////////////////////////////////////////////////////////////////
-    var material = new THREE.LineDashedMaterial( {
-        dashSize: 1,
-        gapSize: 1,
-    } );
-    var geometry = new THREE.Geometry();
-    geometry.vertices.push(new THREE.Vector3(1, 0, -3));
-    geometry.vertices.push(new THREE.Vector3(-1, 0, -3));
-    var lineMesh = new THREE.Line(geometry, material);
-    container.add(lineMesh)
+// update container.visible and scanningSpinner visibility
+onRenderFcts.push(function(){
+    if( markerRoot1.visible === true && markerRoot2.visible === true ){
+        container.visible = true
+        document.querySelector('.scanningSpinner').style.display = 'none'
+    }else{
+        container.visible = false
+        document.querySelector('.scanningSpinner').style.display = ''
+    }
+})
 
-    // update lineMesh
-    onRenderFcts.push(function(){
-        var geometry = lineMesh.geometry
-        geometry.vertices[0].copy(markerRoot1.position)
-        geometry.vertices[1].copy(markerRoot2.position)
-        geometry.verticesNeedUpdate = true
+//////////////////////////////////////////////////////////////////////////////
+//		build lineMesh
+//////////////////////////////////////////////////////////////////////////////
+var material = new THREE.LineDashedMaterial( {
+    dashSize: 1,
+    gapSize: 1,
+} );
+var geometry = new THREE.Geometry();
+geometry.vertices.push(new THREE.Vector3(1, 0, -3));
+geometry.vertices.push(new THREE.Vector3(-1, 0, -3));
+var lineMesh = new THREE.Line(geometry, material);
+container.add(lineMesh)
 
-        geometry.computeBoundingSphere();
-        geometry.computeLineDistances();
+// update lineMesh
+onRenderFcts.push(function(){
+    var geometry = lineMesh.geometry
+    geometry.vertices[0].copy(markerRoot1.position)
+    geometry.vertices[1].copy(markerRoot2.position)
+    geometry.verticesNeedUpdate = true
 
-        var length = markerRoot1.position.distanceTo(markerRoot2.position)
-        lineMesh.material.scale = length * 10
-        lineMesh.material.needsUpdate = true
-    })
+    geometry.computeBoundingSphere();
+    geometry.computeLineDistances();
+
+    var length = markerRoot1.position.distanceTo(markerRoot2.position)
+    lineMesh.material.scale = length * 10
+    lineMesh.material.needsUpdate = true
+})
 
 
-    //////////////////////////////////////////////////////////////////////////////
-    //		display the distance between the 2 markers
-    //////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+//		display the distance between the 2 markers
+//////////////////////////////////////////////////////////////////////////////
 
-    // build texture
-    var canvas = document.createElement( 'canvas' );
-    canvas.width = 128;
-    canvas.height = 64;
-    var context = canvas.getContext( '2d' );
-    var texture = new THREE.CanvasTexture( canvas );
+// build texture
+var canvas = document.createElement( 'canvas' );
+canvas.width = 128;
+canvas.height = 64;
+var context = canvas.getContext( '2d' );
+var texture = new THREE.CanvasTexture( canvas );
 
-    // build sprite
-    var material = new THREE.SpriteMaterial({
-        map: texture,
-        color: 0xffffff,
-    });
-    var sprite = new THREE.Sprite( material );
-    sprite.scale.multiplyScalar(0.5)
-    container.add(sprite)
+// build sprite
+var material = new THREE.SpriteMaterial({
+    map: texture,
+    color: 0xffffff,
+});
+var sprite = new THREE.Sprite( material );
+sprite.scale.multiplyScalar(0.5)
+container.add(sprite)
 
-    // upload measure
-    onRenderFcts.push(function(){
-        // update sprite position
-        sprite.position.addVectors(markerRoot1.position, markerRoot2.position).multiplyScalar(1/2)
+// upload measure
+onRenderFcts.push(function(){
+    // update sprite position
+    sprite.position.addVectors(markerRoot1.position, markerRoot2.position).multiplyScalar(1/2)
 
-        // get the text to display
-        var length = markerRoot1.position.distanceTo(markerRoot2.position)
-        var text = length.toFixed(2)
+    // get the text to display
+    var length = markerRoot1.position.distanceTo(markerRoot2.position)
+    var text = length.toFixed(2)
 
-        // put the text in the sprite
-        context.font = '40px monospace';
-        context.clearRect( 0, 0, canvas.width, canvas.height );
-        context.fillStyle = '#fff';
-        context.fillText(text, canvas.width/4, 3*canvas.height/4 )
-        sprite.material.map.needsUpdate = true
-    })
+    // put the text in the sprite
+    context.font = '40px monospace';
+    context.clearRect( 0, 0, canvas.width, canvas.height );
+    context.fillStyle = '#fff';
+    context.fillText(text, canvas.width/4, 3*canvas.height/4 )
+    sprite.material.map.needsUpdate = true
+})
 
-})()
 //////////////////////////////////////////////////////////////////////////////////
 //		render the whole thing on the page
 //////////////////////////////////////////////////////////////////////////////////
@@ -312,7 +311,7 @@ onRenderFcts.push(function(){
     } else {
         webgl_renderer.render(scene, camera);
     }
-})
+});
 
 // run the rendering loop
 var lastTimeMsec= null
@@ -327,4 +326,4 @@ requestAnimationFrame(function animate(nowMsec){
     onRenderFcts.forEach(function(onRenderFct){
         onRenderFct(deltaMsec/1000, nowMsec/1000)
     })
-})
+});

@@ -137,21 +137,21 @@ var arToolkitContext = new THREEx.ArToolkitContext({
     maxDetectionRate: 30,
     canvasWidth: 80 * 3,
     canvasHeight: 60 * 3,
-})
+});
 // initialize it
 arToolkitContext.init(function onCompleted() {
     if (camera instanceof THREE.PerspectiveCamera === false) {
         // copy projection matrix to camera
         camera.projectionMatrix.copy(arToolkitContext.getProjectionMatrix());
     }
-})
+});
 
 // update artoolkit on every frame
 onRenderFcts.push(function () {
-    if (arToolkitSource.ready === false) return
+    if (arToolkitSource.ready === false) return;
 
     arToolkitContext.update(arToolkitSource.domElement)
-})
+});
 
 
 ////////////////////////////////////////////////////////////////////////////////
