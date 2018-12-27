@@ -158,9 +158,8 @@ markerRoot1.name = 'marker1'
 scene.add(markerRoot1)
 var markerControls = new THREEx.ArMarkerControls(arToolkitContext, markerRoot1, {
     type : 'pattern',
-    patternUrl : 'data/patterns/patt.hiro',
-    // patternUrl : THREEx.ArToolkitContext.baseURL + 'data/patterns/patt.kanji',
-})
+    patternUrl : 'data/patterns/patt.hiro'
+});
 
 // add a gizmo in the center of the marker
 var geometry	= new THREE.OctahedronGeometry( 0.1, 0 )
@@ -183,30 +182,6 @@ var markerControls = new THREEx.ArMarkerControls(arToolkitContext, markerRoot2, 
      patternUrl : 'data/patterns/patt.kanji',
 });
 
-// get videoTexture
-if (arToolkitSource.domElement.nodeName === 'VIDEO') {
-    var videoTexture = new THREE.VideoTexture(arToolkitSource.domElement)
-    // arToolkitSource.domElement.pause()
-} else if (arToolkitSource.domElement.nodeName === 'IMG') {
-    var videoTexture = new THREE.Texture(arToolkitSource.domElement);
-    videoTexture.needsUpdate = true
-} else console.assert(false);
-// TODO to remove if webgl2 - better visual ?
-videoTexture.minFilter = THREE.NearestFilter;
-
-//////////////////////////////////////////////////////////////////////////////
-//	plane always in front of the camera, exactly as big as the viewport
-//////////////////////////////////////////////////////////////////////////////
-var videoInWebgl = new THREEx.ArVideoInWebgl(videoTexture);
-scene.add(videoInWebgl.object3d);
-arToolkitSource.domElement.style.visibility = 'hidden';
-
-// TODO extract the fov from the projectionMatrix
-// camera.fov = 43.1
-// camera.fov = 42
-onRenderFcts.push(function () {
-    videoInWebgl.update(camera)
-});
 
 // add a gizmo in the center of the marker
 var geometry	= new THREE.OctahedronGeometry( 0.1, 0 )
@@ -245,7 +220,31 @@ geometry.vertices.push(new THREE.Vector3(1, 0, -3));
 geometry.vertices.push(new THREE.Vector3(-1, 0, -3));
 var lineMesh = new THREE.Line(geometry, material);
 container.add(lineMesh)
+// get videoTexture
+if (arToolkitSource.domElement.nodeName === 'VIDEO') {
+    var videoTexture = new THREE.VideoTexture(arToolkitSource.domElement)
+    // arToolkitSource.domElement.pause()
+} else if (arToolkitSource.domElement.nodeName === 'IMG') {
+    var videoTexture = new THREE.Texture(arToolkitSource.domElement);
+    videoTexture.needsUpdate = true
+} else console.assert(false);
+// TODO to remove if webgl2 - better visual ?
+videoTexture.minFilter = THREE.NearestFilter;
 
+
+//////////////////////////////////////////////////////////////////////////////
+//	plane always in front of the camera, exactly as big as the viewport
+//////////////////////////////////////////////////////////////////////////////
+var videoInWebgl = new THREEx.ArVideoInWebgl(videoTexture);
+scene.add(videoInWebgl.object3d);
+arToolkitSource.domElement.style.visibility = 'hidden';
+
+// TODO extract the fov from the projectionMatrix
+// camera.fov = 43.1
+// camera.fov = 42
+onRenderFcts.push(function () {
+    videoInWebgl.update(camera)
+});
 // update lineMesh
 onRenderFcts.push(function(){
     var geometry = lineMesh.geometry
@@ -259,7 +258,7 @@ onRenderFcts.push(function(){
     var length = markerRoot1.position.distanceTo(markerRoot2.position)
     lineMesh.material.scale = length * 10
     lineMesh.material.needsUpdate = true
-})
+});
 
 
 //////////////////////////////////////////////////////////////////////////////
@@ -297,33 +296,35 @@ onRenderFcts.push(function(){
     context.fillStyle = '#fff';
     context.fillText(text, canvas.width/4, 3*canvas.height/4 )
     sprite.material.map.needsUpdate = true
-})
+});
 
 //////////////////////////////////////////////////////////////////////////////////
 //		render the whole thing on the page
 //////////////////////////////////////////////////////////////////////////////////
-
+var stats = new Stats();
+document.body.appendChild(stats.dom);
 // render the scene
-onRenderFcts.push(function(){
+onRenderFcts.push(function () {
     // Render the scene.
     if (vrEffect !== null) {
         vrEffect.render(scene, camera);
     } else {
         webgl_renderer.render(scene, camera);
     }
+    stats.update();
 });
 
 // run the rendering loop
-var lastTimeMsec= null
-requestAnimationFrame(function animate(nowMsec){
+var lastTimeMsec = null
+requestAnimationFrame(function animate(nowMsec) {
     // keep looping
-    requestAnimationFrame( animate );
+    requestAnimationFrame(animate);
     // measure time
-    lastTimeMsec	= lastTimeMsec || nowMsec-1000/60
-    var deltaMsec	= Math.min(200, nowMsec - lastTimeMsec)
-    lastTimeMsec	= nowMsec
+    lastTimeMsec = lastTimeMsec || nowMsec - 1000 / 60
+    var deltaMsec = Math.min(200, nowMsec - lastTimeMsec)
+    lastTimeMsec = nowMsec
     // call each update function
-    onRenderFcts.forEach(function(onRenderFct){
-        onRenderFct(deltaMsec/1000, nowMsec/1000)
+    onRenderFcts.forEach(function (onRenderFct) {
+        onRenderFct(deltaMsec / 1000, nowMsec / 1000)
     })
-});
+})
