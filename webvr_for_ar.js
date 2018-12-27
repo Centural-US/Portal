@@ -79,10 +79,10 @@ function togglePresent() {
 
 document.body.addEventListener('keypress', function (event) {
     if (event.key === 'p') togglePresent()
-})
+});
 document.body.addEventListener('click', function (event) {
     togglePresent()
-})
+});
 
 // Resize the WebGL canvas when we resize and also when we change modes.
 window.addEventListener('resize', onResize);
@@ -158,13 +158,14 @@ onRenderFcts.push(function () {
 //          Create a ArMarkerControls
 ////////////////////////////////////////////////////////////////////////////////
 var markers = [];
-var markerRoot = new THREE.Group
-scene.add(markerRoot)
+var markerRoot = new THREE.Group;
+scene.add(markerRoot);
 var artoolkitMarker = new THREEx.ArMarkerControls(arToolkitContext, markerRoot, {
     type: 'pattern',
     patternUrl: 'data/patterns/patt.hiro',
     // patternUrl : THREEx.ArToolkitContext.baseURL + '../data/data/patt.kanji',
-})
+});
+
 
 //////////////////////////////////////////////////////////////////////////////////
 //		build videoTexture
@@ -175,72 +176,26 @@ if (arToolkitSource.domElement.nodeName === 'VIDEO') {
     var videoTexture = new THREE.VideoTexture(arToolkitSource.domElement)
     // arToolkitSource.domElement.pause()
 } else if (arToolkitSource.domElement.nodeName === 'IMG') {
-    var videoTexture = new THREE.Texture(arToolkitSource.domElement)
+    var videoTexture = new THREE.Texture(arToolkitSource.domElement);
     videoTexture.needsUpdate = true
-} else console.assert(false)
+} else console.assert(false);
 // TODO to remove if webgl2 - better visual ?
-videoTexture.minFilter = THREE.NearestFilter
+videoTexture.minFilter = THREE.NearestFilter;
 
 
 //////////////////////////////////////////////////////////////////////////////
 //	plane always in front of the camera, exactly as big as the viewport
 //////////////////////////////////////////////////////////////////////////////
-var videoInWebgl = new THREEx.ArVideoInWebgl(videoTexture)
+var videoInWebgl = new THREEx.ArVideoInWebgl(videoTexture);
 scene.add(videoInWebgl.object3d);
-arToolkitSource.domElement.style.visibility = 'hidden'
+arToolkitSource.domElement.style.visibility = 'hidden';
 
 // TODO extract the fov from the projectionMatrix
 // camera.fov = 43.1
 // camera.fov = 42
 onRenderFcts.push(function () {
     videoInWebgl.update(camera)
-})
-
-//////////////////////////////////////////////////////////////////////////////
-//		Code Separator
-//////////////////////////////////////////////////////////////////////////////
-// var video = arToolkitSource.domElement;
-//
-// window.addEventListener('resize', function(){
-// 	updateSeeThruAspectUv(seethruPlane)
-// })
-// video.addEventListener('canplaythrough', function(){
-// 	updateSeeThruAspectUv(seethruPlane)
-// })
-// function updateSeeThruAspectUv(plane){
-//
-// 	// if video isnt yet ready to play
-// 	if( video.videoWidth === 0 || video.videoHeight === 0 )	return
-//
-// 	var faceVertexUvs = plane.geometry.faceVertexUvs[0]
-// 	var screenAspect = window.innerWidth / window.innerHeight
-// 	var videoAspect = video.videoWidth / video.videoHeight
-//
-// 	plane.geometry.uvsNeedUpdate = true
-// 	if( screenAspect >= videoAspect ){
-// 		var actualHeight = videoAspect / screenAspect;
-// 		// faceVertexUvs y 0
-// 		faceVertexUvs[0][1].y = 0.5 - actualHeight/2
-// 		faceVertexUvs[1][0].y = 0.5 - actualHeight/2
-// 		faceVertexUvs[1][1].y = 0.5 - actualHeight/2
-// 		// faceVertexUvs y 1
-// 		faceVertexUvs[0][0].y = 0.5 + actualHeight/2
-// 		faceVertexUvs[0][2].y = 0.5 + actualHeight/2
-// 		faceVertexUvs[1][2].y = 0.5 + actualHeight/2
-// 	}else{
-// 		var actualWidth = screenAspect / videoAspect;
-// 		// faceVertexUvs x 0
-// 		faceVertexUvs[0][0].x = 0.5 - actualWidth/2
-// 		faceVertexUvs[0][1].x = 0.5 - actualWidth/2
-// 		faceVertexUvs[1][0].x = 0.5 - actualWidth/2
-//
-// 		// faceVertexUvs x 1
-// 		faceVertexUvs[0][2].x = 0.5 + actualWidth/2
-// 		faceVertexUvs[1][1].x = 0.5 + actualWidth/2
-// 		faceVertexUvs[1][2].x = 0.5 + actualWidth/2
-// 	}
-// }
-
+});
 
 //////////////////////////////////////////////////////////////////////////////////
 //		add an object in the scene
@@ -267,7 +222,7 @@ markerRoot.add(mesh);
 
 onRenderFcts.push(function () {
     mesh.rotation.x += 0.1
-})
+});
 
 //////////////////////////////////////////////////////////////////////////////////
 //		render the whole thing on the page
@@ -283,7 +238,7 @@ onRenderFcts.push(function () {
         webgl_renderer.render(scene, camera);
     }
     stats.update();
-})
+});
 
 // run the rendering loop
 var lastTimeMsec = null
