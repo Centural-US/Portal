@@ -23,9 +23,6 @@ document.body.appendChild(webgl_renderer.domElement);
 var onRenderFcts= [];
 
 // init scene and camera
-var scene	= new THREE.Scene();
-
-// init scene and camera
 var scene = new THREE.Scene();
 
 var ambient = new THREE.AmbientLight(0x666666);
@@ -149,7 +146,7 @@ onRenderFcts.push(function(){
     if( arToolkitSource.ready === false )	return
 
     arToolkitContext.update( arToolkitSource.domElement )
-});(function(){
+})(function(){
 
     //////////////////////////////////////////////////////////////////////////////
     //		markerRoot1
