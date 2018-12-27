@@ -2,17 +2,22 @@
 //		Init
 //////////////////////////////////////////////////////////////////////////////////
 
-// init renderer
-var renderer	= new THREE.WebGLRenderer({
+
+//
+var webgl_renderer_parameters = {
     antialias	: true,
     alpha: true
-});
-renderer.setClearColor(new THREE.Color('lightgrey'), 0)
-renderer.setSize( 640, 480 );
-renderer.domElement.style.position = 'absolute'
-renderer.domElement.style.top = '0px'
-renderer.domElement.style.left = '0px'
-document.body.appendChild( renderer.domElement );
+};
+
+// init webgl_renderer
+var webgl_renderer	= new THREE.WebGLRenderer( webgl_renderer_parameters );
+
+webgl_renderer.setClearColor(new THREE.Color('lightgrey'), 0);
+webgl_renderer.setSize(window.innerWidth, window.innerHeight);
+webgl_renderer.domElement.style.position = 'absolute';
+webgl_renderer.domElement.style.top = '0px';
+webgl_renderer.domElement.style.left = '0px';
+document.body.appendChild(webgl_renderer.domElement);
 
 // array of functions for the rendering loop
 var onRenderFcts= [];
@@ -46,10 +51,10 @@ scene.add(camera);
 //		Code Separator
 //////////////////////////////////////////////////////////////////////////////
 
-// Apply VR stereo rendering to renderer.
+// Apply VR stereo rendering to webgl_renderer.
 var vrEffect = null;
 if (true) { //if what is true?
-    vrEffect = new THREE.VREffect(renderer);
+    vrEffect = new THREE.VREffect(webgl_renderer);
     vrEffect.setSize(window.innerWidth, window.innerHeight);
 }
 
@@ -72,7 +77,7 @@ function togglePresent() {
     if (vrDisplay.isPresenting) {
         vrDisplay.exitPresent()
     } else {
-        vrDisplay.requestPresent([{source: renderer.domElement}]);
+        vrDisplay.requestPresent([{source: webgl_renderer.domElement}]);
     }
 }
 
@@ -96,7 +101,7 @@ window.addEventListener('resize', onResize);
 
 function onResize() {
     // handle arToolkitSource resize
-    arToolkitSource.onResize(renderer.domElement)
+    arToolkitSource.onResize(webgl_renderer.domElement)
 
     // get width/height from arToolkitSource.domElement
     var elementWidth = parseFloat(arToolkitSource.domElement.style.width.replace(/px$/, ''), 10)
@@ -137,11 +142,6 @@ arToolkitContext.init(function onCompleted(){
         // copy projection matrix to camera
         camera.projectionMatrix.copy(arToolkitContext.getProjectionMatrix());
     }
-});
-
-// handle resize
-window.addEventListener('resize', function(){
-    onResize()
 });
 
 // update artoolkit on every frame
@@ -287,7 +287,12 @@ onRenderFcts.push(function(){
 
 // render the scene
 onRenderFcts.push(function(){
-    renderer.render( scene, camera );
+    // Render the scene.
+    if (vrEffect !== null) {
+        vrEffect.render(scene, camera);
+    } else {
+        webgl_renderer.render(scene, camera);
+    }
 })
 
 // run the rendering loop

@@ -120,11 +120,11 @@ var arToolkitSource = new THREEx.ArToolkitSource({
     // // to read from a video
     // sourceType : 'video',
     // sourceUrl : THREEx.ArToolkitContext.baseURL + '../data/videos/headtracking.mp4',
-})
+});
 
 arToolkitSource.init(function onReady() {
     onResize()
-})
+});
 
 ////////////////////////////////////////////////////////////////////////////////
 //          initialize arToolkitContext
